@@ -39,7 +39,7 @@ jobs:
       - name: Render
         run: |
           mkdir -p out
-          ARGS="--gl=swangle --codec=h264 --crf=18 --concurrency=100% --scale=${{ inputs.scale }}"
+          ARGS="--gl=swangle --codec=h264 --crf=18 --concurrency=2 --timeout=300000 --scale=${{ inputs.scale }}"
           if [ -n "${{ inputs.frames }}" ]; then ARGS="$ARGS --frames=${{ inputs.frames }}"; fi
           npx remotion render TikTokDoc out/carnian-pluvial-episode.mp4 $ARGS
 
