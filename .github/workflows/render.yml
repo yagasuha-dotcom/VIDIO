@@ -44,6 +44,8 @@ jobs:
           TTS_VOICE: ${{ inputs.voice }}
           TTS_RATE: ${{ inputs.rate }}
         run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
           python3 -m venv .venv
           . .venv/bin/activate
           pip install edge-tts
