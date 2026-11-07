@@ -41,7 +41,7 @@ export const COLORS = {
 export const wetAt = (t: number) =>
   interpolate(
     t,
-    [0, LS(3) - 0.3, LS(3), LS(4), LE(4), LS(16), LE(27), LE(42), LS(45), LE(46), 245],
+    [0, LS(3) - 0.3, LS(3), LS(4), LE(4), LS(16), LE(27), LE(42), LS(45), LE(46), TOTAL_FRAMES / FPS],
     [0.95, 0.95, 0.12, 0.15, 0.7, 0.2, 1, 1, 0.85, 0.25, 0.5],
     {extrapolateLeft: "clamp", extrapolateRight: "clamp"}
   );

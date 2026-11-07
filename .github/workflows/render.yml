@@ -3,6 +3,25 @@ name: Render video
 on:
   workflow_dispatch:
     inputs:
+      tts:
+        description: "Buat voice otomatis dari naskah (tools/script_lines.txt)"
+        type: boolean
+        default: true
+      only_voice:
+        description: "Hanya buat voice (tanpa render video) untuk didengar dulu"
+        type: boolean
+        default: false
+      voice:
+        description: "Suara"
+        type: choice
+        default: id-ID-ArdiNeural
+        options:
+          - id-ID-ArdiNeural
+          - id-ID-GadisNeural
+      rate:
+        description: "Kecepatan bicara, contoh +0% / -8% / +10%"
+        required: false
+        default: "+0%"
       frames:
         description: "Opsional, untuk tes cepat. Contoh: 1070-1130 (kosongkan = render penuh)"
         required: false
@@ -19,11 +38,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Buat voice (TTS)
+        if: ${{ inputs.tts }}
+        env:
+          TTS_VOICE: ${{ inputs.voice }}
+          TTS_RATE: ${{ inputs.rate }}
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install edge-tts
+          python tools/tts.py
+
+      - name: Upload voice dan timing
+        if: ${{ inputs.tts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-tts
+          path: |
+            public/voice_1.mp3
+            public/voice_2.mp3
+            src/timing.json
+          retention-days: 7
+
       - uses: actions/setup-node@v4
+        if: ${{ !inputs.only_voice }}
         with:
           node-version: 22
 
       - name: Install dependensi sistem untuk Chrome
+        if: ${{ !inputs.only_voice }}
         run: |
           sudo apt-get update
           sudo apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libasound2t64 \
@@ -31,19 +74,23 @@ jobs:
             libgbm-dev libcups2 libatk-bridge2.0-0 libpango-1.0-0 libcairo2
 
       - name: Install paket npm
+        if: ${{ !inputs.only_voice }}
         run: npm install --no-audit --no-fund
 
       - name: Download browser Remotion
+        if: ${{ !inputs.only_voice }}
         run: npx remotion browser ensure
 
       - name: Render
+        if: ${{ !inputs.only_voice }}
         run: |
           mkdir -p out
-          ARGS="--gl=swangle --codec=h264 --crf=18 --concurrency=100% --scale=${{ inputs.scale }}"
+          ARGS="--gl=swangle --codec=h264 --crf=18 --concurrency=2 --timeout=300000 --scale=${{ inputs.scale }}"
           if [ -n "${{ inputs.frames }}" ]; then ARGS="$ARGS --frames=${{ inputs.frames }}"; fi
           npx remotion render TikTokDoc out/carnian-pluvial-episode.mp4 $ARGS
 
       - name: Upload hasil
+        if: ${{ !inputs.only_voice }}
         uses: actions/upload-artifact@v4
         with:
           name: carnian-pluvial-mp4
