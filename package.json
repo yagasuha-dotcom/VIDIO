@@ -1,0 +1,27 @@
+{
+  "name": "carnian-pluvial-tiktok",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render TikTokDoc out/carnian-pluvial-episode.mp4 --gl=angle --codec=h264 --crf=16 --concurrency=50%",
+    "render:guides": "remotion render TikTokDoc out/preview-safe-zone.mp4 --props=\"{\\\"showGuides\\\":true}\" --gl=angle --scale=0.5 --crf=26",
+    "still": "remotion still TikTokDoc out/frame.png --frame=1500 --gl=angle",
+    "align": "python3 tools/align.py"
+  },
+  "dependencies": {
+    "@react-three/fiber": "8.17.10",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/three": "^4.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "^4.0.0",
+    "three": "0.169.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/three": "0.169.0",
+    "typescript": "5.6.3"
+  }
+}

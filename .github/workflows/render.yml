@@ -1,0 +1,51 @@
+name: Render video
+
+on:
+  workflow_dispatch:
+    inputs:
+      frames:
+        description: "Opsional, untuk tes cepat. Contoh: 1070-1130 (kosongkan = render penuh)"
+        required: false
+        default: ""
+      scale:
+        description: "Skala resolusi (1 = 1080x1920, 0.5 = tes cepat)"
+        required: false
+        default: "1"
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependensi sistem untuk Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libasound2t64 \
+            libxrandr2 libxkbcommon-dev libxfixes3 libxcomposite1 libxdamage1 \
+            libgbm-dev libcups2 libatk-bridge2.0-0 libpango-1.0-0 libcairo2
+
+      - name: Install paket npm
+        run: npm install --no-audit --no-fund
+
+      - name: Download browser Remotion
+        run: npx remotion browser ensure
+
+      - name: Render
+        run: |
+          mkdir -p out
+          ARGS="--gl=swangle --codec=h264 --crf=18 --concurrency=100% --scale=${{ inputs.scale }}"
+          if [ -n "${{ inputs.frames }}" ]; then ARGS="$ARGS --frames=${{ inputs.frames }}"; fi
+          npx remotion render TikTokDoc out/carnian-pluvial-episode.mp4 $ARGS
+
+      - name: Upload hasil
+        uses: actions/upload-artifact@v4
+        with:
+          name: carnian-pluvial-mp4
+          path: out/carnian-pluvial-episode.mp4
+          retention-days: 7
